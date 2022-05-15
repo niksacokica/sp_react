@@ -1,12 +1,4 @@
-backend/
-frontend/
-
-### Format1  ###
-node_modules/
-node/
-
-### Format2  ###
-**/frontend/node_modules/**
-**/frontend/node/**
+backend/node_modules
+frontend/node_modules
 
 sp_react.rar
