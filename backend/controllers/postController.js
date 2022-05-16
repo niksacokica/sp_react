@@ -46,9 +46,7 @@ module.exports = {
 			name : req.body.name,
 			path : "/images/"+req.file.filename,
 			postedBy : req.session.userId,
-			date: Date.now(),
-			views : 0,
-			likes : 0
+			date: Date.now()
         });
 
         post.save(function (err, post) {
@@ -83,8 +81,6 @@ module.exports = {
             post.name = req.body.name ? req.body.name : post.name;
 			post.path = req.body.path ? req.body.path : post.path;
 			post.postedBy = req.body.postedBy ? req.body.postedBy : post.postedBy;
-			post.views = req.body.views ? req.body.views : post.views;
-			post.likes = req.body.likes ? req.body.likes : post.likes;
 			
             post.save(function (err, post) {
                 if (err) {
@@ -116,5 +112,37 @@ module.exports = {
 
     publish: function(req, res){
         return res.render('post/publish');
+    },
+	
+	like: function (req, res) {
+        var id = req.params.id;
+
+        PostModel.findOne({_id: id}, function (err, post) {
+            if (err) {
+                return res.status(500).json({
+                    message: 'Error when getting post',
+                    error: err
+                });
+            }
+
+            if (!post) {
+                return res.status(404).json({
+                    message: 'No such post'
+                });
+            }
+			
+			post.likes.push(req.session.userId);
+			
+            post.save(function (err, post) {
+                if (err) {
+                    return res.status(500).json({
+                        message: 'Error when updating post.',
+                        error: err
+                    });
+                }
+
+                return res.json(post);
+            });
+        });
     }
 };

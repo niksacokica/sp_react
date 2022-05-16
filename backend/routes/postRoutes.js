@@ -22,6 +22,8 @@ router.get('/:id', postController.show);
 
 router.post('/', requiresLogin, upload.single('image'), postController.create);
 
+router.post('/:id', postController.like);
+
 router.put('/:id', postController.update);
 
 router.delete('/:id', postController.remove);

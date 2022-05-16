@@ -8,9 +8,15 @@ var postSchema = new Schema({
 	 	type: Schema.Types.ObjectId,
 	 	ref: 'user'
 	},
-	'date' : Date,
-	'views' : Number,
-	'likes' : Number
+	'comments': [{
+		type: Schema.Types.ObjectId,
+		ref: 'comment'
+	}],
+	'likes' : [{
+		type: Schema.Types.ObjectId,
+		ref: 'user'
+	}],
+	'date' : Date
 });
 
 module.exports = mongoose.model('post', postSchema);
