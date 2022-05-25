@@ -3,7 +3,7 @@ var PostModel = require('../models/postModel.js');
 module.exports = {
     list: function (req, res) {
         PostModel.find()
-        .populate('postedBy')
+        .populate('postedBy comments')
         .exec(function (err, posts) {
             if (err) {
                 return res.status(500).json({
@@ -23,7 +23,15 @@ module.exports = {
     show: function (req, res) {
         var id = req.params.id;
 
-        PostModel.findOne({_id: id}, function (err, post) {
+        PostModel.findOne({_id: id})
+			.populate({
+                path: "postedBy",
+                path: "comments",
+                populate: {
+                    path: "postedBy",
+                }
+            })
+			.exec(function (err, post) {
             if (err) {
                 return res.status(500).json({
                     message: 'Error when getting post.',

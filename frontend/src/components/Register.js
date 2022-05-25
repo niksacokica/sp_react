@@ -1,14 +1,26 @@
 import { useState } from 'react';
+import ReCAPTCHA from 'react-google-recaptcha'
 
 function Register() {
     const [username, setUsername] = useState([]);
     const [password, setPassword] = useState([]);
     const [email, setEmail] = useState([]);
     const [error, setError] = useState([]);
-
-    async function Register(e){
+	const [captcha, setCaptcha] = useState(false);
+	
+	function onChange(value) {
+		setCaptcha(true);
+	}
+	
+    async function Register(e){		
         e.preventDefault();
-        const res = await fetch("http://localhost:3001/users", {
+		
+		if(!captcha){
+			setError("Captcha failed!");
+			return;
+		}
+        
+		const res = await fetch("http://localhost:3001/users", {
             method: 'POST',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
@@ -31,6 +43,11 @@ function Register() {
     }
 
     return(
+		<div>
+		<ReCAPTCHA
+			sitekey="6LfpAfMfAAAAAFDVnO0ZH95F0UB86tnx-FlTNZTI"
+			onChange={onChange}
+		/>
         <form onSubmit={Register}>
             <input type="text" name="email" placeholder="Email" value={email} onChange={(e)=>(setEmail(e.target.value))} />
             <input type="text" name="username" placeholder="Username" value={username} onChange={(e)=>(setUsername(e.target.value))}/>
@@ -38,6 +55,7 @@ function Register() {
             <input type="submit" name="submit" value="Register" />
             <label>{error}</label>
         </form>
+		</div>
     );
 }
 

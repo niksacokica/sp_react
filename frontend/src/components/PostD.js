@@ -4,11 +4,14 @@ import Comment from './Comment';
 
 function Post(props){
 	const userContext = useContext(UserContext); 
-    const[content, setContent] = useState('');
+    const [content, setContent] = useState('');
+	const [comments, setComments] = useState([]);
+	const [liked, setLiked] = useState(false);
+	const [likes, setLikes] = useState(0);
 	
 	async function onSubmit(e){
-        e.preventDefault();
-
+		e.preventDefault();
+		
         if(!content){
             return;
         }
@@ -24,9 +27,10 @@ function Post(props){
         });
         const data = await res.json();
 		
-		if(data._id !== undefined){
-            window.location.reload(false);
-        }
+		data.postedBy = {
+			username: userContext.user.username
+		}
+		setComments([...comments, data]);
     };
 	
 	async function onLike(e){
@@ -38,42 +42,34 @@ function Post(props){
         });
         const data = await res.json();
 		
-		if(data._id !== undefined){
-            window.location.reload(false);
-        }
+        setLiked(false);
+		setLikes(likes + 1);
     };
-	
-	const [comments, setComments] = useState([]);
+
     useEffect(function(){
-        const getComments = async function(){
-            const res = await fetch("http://localhost:3001/comments");
-            const data = await res.json();
-            setComments(data);
-        }
-		
-        getComments();
+		setLiked(props.post.likes && !props.post.likes.includes(userContext.user._id));
+		setComments(props.post.comments);
+		setLikes(props.post.likes ? props.post.likes.length : 0);
     }, []);
 	
     return (
         <div className="text-dark">
 			<h1 className="title">{props.post.name}</h1>
 			<h5 className="date">Date: {props.post.date} </h5>
-			<h5 className="likes">Likes: {props.post.likes ? props.post.likes.length : 0}</h5>
+			<h5 className="likes">Likes: {likes}</h5>
             <img className="img" src={"http://localhost:3001/"+props.post.path} alt={props.post.name} style={{width: '25%'}}/>
 			
 			<br/><br/><hr/>
 			
-			{comments.map(
+			{comments && comments.map(
 				comment=>(
-					props.post.comments && props.post.comments.includes(comment._id) ?
-						<Comment comment={comment} key={comment._id}></Comment>
-					: ""
+					<Comment comment={comment} key={comment._id}></Comment>
 				)
 			)}
 			
 			{userContext.user ?
 			<div>
-				{props.post.likes && !props.post.likes.includes(userContext.user._id) ?
+				{ liked === true ?
 					<div>
 						<button className="btn btn-primary" onClick={onLike}>Like</button>
 						<br/><br/>

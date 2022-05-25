@@ -54,35 +54,36 @@ module.exports = {
                     error: err
                 });
             }
-        });
-		
-		PostModel.findOne({ _id: req.body.id }, function (err, post) {
-            if (err) {
-                return res.status(500).json({
-                    message: 'Error when getting post',
-                    error: err
-                });
-            }
+			
+			PostModel.findOne({ _id: req.body.id }, function (err, post) {
+				if (err) {
+					return res.status(500).json({
+						message: 'Error when getting post',
+						error: err
+					});
+				}
 
-            if (!post) {
-                return res.status(404).json({
-                    message: 'No such post'
-                });
-            }
-            
-            post.comments.push(comment._id);
+				if (!post) {
+					return res.status(404).json({
+						message: 'No such post'
+					});
+				}
+				
+				post.comments.push(comment._id);
 
-            post.save(function (err, post) {
-                if (err) {					
-                    return res.status(500).json({
-                        message: 'Error when updating post.',
-                        error: err
-                    });
-                }
-            });
+				post.save(function (err, post) {
+					if (err) {					
+						return res.status(500).json({
+							message: 'Error when updating post.',
+							error: err
+						});
+					}
+					
+					comment.populate("postedBy");
+					return res.json(comment);
+				});
+			});
         });
-		
-		return res.status(201).json(comment);
     },
 
     update: function (req, res) {
